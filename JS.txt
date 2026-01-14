@@ -1,0 +1,271 @@
+/* =========================================================
+   Basic Helpers
+   ========================================================= */
+const $ = (selector, scope = document) => scope.querySelector(selector);
+const $$ = (selector, scope = document) => Array.from(scope.querySelectorAll(selector));
+
+/* Smooth scroll for internal nav links */
+const initSmoothScroll = () => {
+  $$('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', e => {
+      const targetId = link.getAttribute('href');
+      if (!targetId || targetId === '#') return;
+      const targetEl = document.querySelector(targetId);
+      if (!targetEl) return;
+
+      e.preventDefault();
+      const offset = 80; // approximate nav height
+      const top = targetEl.getBoundingClientRect().top + window.scrollY - offset;
+
+      window.scrollTo({
+        top,
+        behavior: 'smooth'
+      });
+    });
+  });
+};
+
+/* =========================================================
+   1. Navigation – active state on scroll
+   ========================================================= */
+const initScrollSpy = () => {
+  const sections = $$('section[id]');
+  const navLinks = $$('.nav__link');
+
+  const onScroll = () => {
+    const scrollPos = window.scrollY + 120; // offset a bit below top
+    let currentId = null;
+
+    sections.forEach(section => {
+      if (scrollPos >= section.offsetTop &&
+          scrollPos < section.offsetTop + section.offsetHeight) {
+        currentId = section.id;
+      }
+    });
+
+    navLinks.forEach(link => {
+      const href = link.getAttribute('href');
+      if (href === `#${currentId}`) {
+        link.classList.add('nav__link--active');
+      } else {
+        link.classList.remove('nav__link--active');
+      }
+    });
+  };
+
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+};
+
+/* Optional: add subtle shadow when user scrolls down */
+const initNavShadowOnScroll = () => {
+  const nav = $('.nav');
+  if (!nav) return;
+
+  const toggleShadow = () => {
+    if (window.scrollY > 10) {
+      nav.classList.add('nav--scrolled');
+    } else {
+      nav.classList.remove('nav--scrolled');
+    }
+  };
+
+  window.addEventListener('scroll', toggleShadow);
+  toggleShadow();
+};
+
+/* =========================================================
+   2. Hero – button click logging / demo placeholder
+   ========================================================= */
+const initHeroActions = () => {
+  const demoBtn = $('.hero .btn--primary');
+  const featuresBtn = $('.hero .btn--ghost');
+
+  if (demoBtn) {
+    demoBtn.addEventListener('click', () => {
+      console.log('Hero: Request a Private Demo clicked');
+      // Here you could open a modal or analytics event
+    });
+  }
+
+  if (featuresBtn) {
+    featuresBtn.addEventListener('click', () => {
+      console.log('Hero: Explore Features clicked');
+    });
+  }
+};
+
+/* =========================================================
+   3. Trust Strip – simple fade-in when visible
+   ========================================================= */
+const initTrustReveal = () => {
+  const trust = $('.trust');
+  if (!trust) return;
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        trust.classList.add('trust--visible');
+        observer.disconnect();
+      }
+    });
+  }, { threshold: 0.2 });
+
+  observer.observe(trust);
+};
+
+/* =========================================================
+   4. Value Proposition – reveal cards on scroll
+   ========================================================= */
+const initFeatureCardsReveal = () => {
+  const cards = $$('.feature-card');
+  if (!cards.length) return;
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('feature-card--visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  cards.forEach(card => observer.observe(card));
+};
+
+/* =========================================================
+   5. Feature Splits – staggered animation
+   ========================================================= */
+const initFeatureSplitsReveal = () => {
+  const splits = $$('.feature-split');
+  if (!splits.length) return;
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('feature-split--visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  splits.forEach(split => observer.observe(split));
+};
+
+/* =========================================================
+   6. Personas section – hover sync
+   ========================================================= */
+const initPersonaHover = () => {
+  const personaCards = $$('.persona-card');
+  if (!personaCards.length) return;
+
+  personaCards.forEach(card => {
+    card.addEventListener('mouseenter', () => {
+      personaCards.forEach(c => c.classList.remove('persona-card--highlight'));
+      card.classList.add('persona-card--highlight');
+    });
+  });
+
+  // set first as default highlight
+  personaCards[0].classList.add('persona-card--highlight');
+};
+
+/* =========================================================
+   7. Testimonials – simple auto-highlight rotation
+   ========================================================= */
+const initTestimonialsRotation = () => {
+  const testimonials = $$('.testimonial');
+  if (testimonials.length <= 1) return;
+
+  let index = 0;
+  testimonials[index].classList.add('testimonial--active');
+
+  setInterval(() => {
+    testimonials[index].classList.remove('testimonial--active');
+    index = (index + 1) % testimonials.length;
+    testimonials[index].classList.add('testimonial--active');
+  }, 7000); // 7s per testimonial
+};
+
+/* =========================================================
+   8. Process – hover effect with js fallback
+   ========================================================= */
+const initProcessHover = () => {
+  const steps = $$('.process__step');
+  if (!steps.length) return;
+
+  steps.forEach(step => {
+    step.addEventListener('mouseenter', () => {
+      steps.forEach(s => s.classList.remove('process__step--active'));
+      step.classList.add('process__step--active');
+    });
+  });
+
+  steps[0].classList.add('process__step--active');
+};
+
+/* =========================================================
+   9. Pricing – highlight card on hover
+   ========================================================= */
+const initPricingHighlight = () => {
+  const cards = $$('.pricing-card');
+  if (!cards.length) return;
+
+  cards.forEach(card => {
+    card.addEventListener('mouseenter', () => {
+      cards.forEach(c => c.classList.remove('pricing-card--focus'));
+      card.classList.add('pricing-card--focus');
+    });
+  });
+};
+
+/* =========================================================
+   10. Final CTA – parallax background effect
+   ========================================================= */
+const initCtaParallax = () => {
+  const cta = $('.cta');
+  if (!cta) return;
+
+  const onScroll = () => {
+    const rect = cta.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    const visibleAmount = 1 - Math.min(Math.max((rect.top + rect.height) / (windowHeight + rect.height), 0), 1);
+    // Move overlay background slightly
+    cta.style.setProperty('--cta-parallax', visibleAmount.toFixed(3));
+  };
+
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+};
+
+/* =========================================================
+   11. Footer – simple contact click log
+   ========================================================= */
+const initFooterInteractions = () => {
+  const emailEl = $('.footer__col:nth-child(5) p:first-of-type');
+  if (emailEl) {
+    emailEl.addEventListener('click', () => {
+      console.log('Footer email clicked:', emailEl.textContent.trim());
+    });
+  }
+};
+
+/* =========================================================
+   INIT
+   ========================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  initSmoothScroll();
+  initScrollSpy();
+  initNavShadowOnScroll();
+
+  initHeroActions();
+  initTrustReveal();
+  initFeatureCardsReveal();
+  initFeatureSplitsReveal();
+  initPersonaHover();
+  initTestimonialsRotation();
+  initProcessHover();
+  initPricingHighlight();
+  initCtaParallax();
+  initFooterInteractions();
+});
